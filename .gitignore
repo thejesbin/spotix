@@ -45,3 +45,4 @@ app.*.map.json
 
 #project related
 /lib/core/
+/android/app/google-services.json

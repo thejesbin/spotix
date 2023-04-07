@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "945751408490",
+    "project_id": "spotix-626e5",
+    "storage_bucket": "spotix-626e5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:945751408490:android:43c11a4b81b3c8bedf2f13",
+        "android_client_info": {
+          "package_name": "com.spotix.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "945751408490-gockagcq7vudmo416c6d2k1vimco76u5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKKrRHn-tnpkOzBcgGCta0Hr5WbyEbwlw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "945751408490-gockagcq7vudmo416c6d2k1vimco76u5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

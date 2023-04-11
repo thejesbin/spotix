@@ -3,8 +3,9 @@ class SearchModel {
   String? username;
   String? profile;
   String? verified;
-
-  SearchModel({this.id, this.username, this.profile, this.verified});
+  String? phone;
+  SearchModel(
+      {this.id, this.username, this.profile, this.verified, this.phone});
 
   factory SearchModel.fromJson(Map<String, dynamic> json) {
     return SearchModel(
@@ -12,6 +13,7 @@ class SearchModel {
       username: json['username'],
       profile: json['profile'],
       verified: json['verified'],
+      phone: json['phone'],
     );
   }
 
@@ -21,6 +23,7 @@ class SearchModel {
       "username": username,
       "profile": profile,
       "verified": verified,
+      "phone": phone,
     };
   }
 }

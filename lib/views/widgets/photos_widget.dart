@@ -9,7 +9,7 @@ import '../../core/constants.dart';
 import '../screen_comments/screen_comments.dart';
 import '../screen_view_user/screen_view_user.dart';
 import '../screen_account/screen_account.dart';
-
+import '../screen_main/screen_main.dart';
 class PhotosWidget extends StatelessWidget {
   final String id;
   final String pid;
@@ -121,7 +121,7 @@ class PhotosWidget extends StatelessWidget {
               ),
               const Spacer(),
               IconButton(
-                  onPressed: () {},
+                  onPressed: () => showOptions(context),
                   icon: const Icon(
                     Icons.more_vert,
                     color: Colors.white,
@@ -265,4 +265,203 @@ class PhotosWidget extends StatelessWidget {
         data: formData,
         options: d.Options(contentType: d.Headers.formUrlEncodedContentType));
   }
+
+  showOptions(BuildContext context) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var myUid = sharedPreferences.getString("uid");
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            color: bgSecondaryColor,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 10,
+                ),
+              myUid!=id?SizedBox(height: 1,):  InkWell(
+                  onTap: ()=>deletePost(myUid,context),
+                  child: Row(
+                    children: const [
+                      SizedBox(
+                        width: 15,
+                      ),
+                      Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        "Delete",
+                        style: TextStyle(
+                          fontFamily: "Itim",
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                InkWell(
+                  onTap: ()=>reportPost(myUid,context),
+                  child: Row(
+                    children: const [
+                      SizedBox(
+                        width: 15,
+                      ),
+                      Icon(
+                        Icons.report,
+                        color: Colors.white,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        "Report",
+                        style: TextStyle(
+                          fontFamily: "Itim",
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                )
+              ],
+            ),
+          );
+        });
+  }
+  
+  deletePost(myuid, BuildContext context) async {
+    Get.snackbar(
+      "Please Wait",
+      'Deleting post...',
+      icon: Row(
+        children: const [
+          SizedBox(
+            width: 5,
+          ),
+          CircularProgressIndicator(
+            color: Colors.white,
+          ),
+        ],
+      ),
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+    d.Dio dio = d.Dio();
+    var formData = d.FormData.fromMap(
+        {'api': encrypt(apiKey), 'uid': encrypt(myuid), 'pid': encrypt(pid)});
+    var response = await dio.post(deletePostUrl,
+        data: formData,
+        options: d.Options(contentType: d.Headers.formUrlEncodedContentType));
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.data['status'] == true) {
+        Get.snackbar(
+          "Yay yay",
+          response.data['msg'],
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) {
+          return ScreenMain();
+        }), (route) => false);
+      } else {
+        Get.snackbar(
+          "Oh no",
+          response.data['msg'],
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) {
+          return ScreenMain();
+        }), (route) => false);
+      }
+    } else {
+      Get.snackbar(
+        "Oh no",
+        "Some error occurred",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) {
+        return ScreenMain();
+      }), (route) => false);
+    }
+  }
+
+  reportPost(myuid, BuildContext context) async {
+    Get.snackbar(
+      "Please Wait",
+      'Reporting post...',
+      icon: Row(
+        children: const [
+          SizedBox(
+            width: 5,
+          ),
+          CircularProgressIndicator(
+            color: Colors.white,
+          ),
+        ],
+      ),
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+    d.Dio dio = d.Dio();
+    var formData = d.FormData.fromMap(
+        {'api': encrypt(apiKey), 'uid': encrypt(myuid), 'pid': encrypt(pid)});
+    var response = await dio.post(reportPostUrl,
+        data: formData,
+        options: d.Options(contentType: d.Headers.formUrlEncodedContentType));
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.data['status'] == true) {
+        Get.snackbar(
+          "Yay yay",
+          response.data['msg'],
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) {
+          return ScreenMain();
+        }), (route) => false);
+      } else {
+        Get.snackbar(
+          "Oh no",
+          response.data['msg'],
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) {
+          return ScreenMain();
+        }), (route) => false);
+      }
+    } else {
+      Get.snackbar(
+        "Oh no",
+        "Some error occurred",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) {
+        return ScreenMain();
+      }), (route) => false);
+    }
+  }
+
 }

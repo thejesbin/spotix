@@ -14,6 +14,7 @@ import 'package:video_player/video_player.dart';
 import '../../models/photos_model.dart';
 import '../../viewmodels/account_viewmodel.dart';
 import '../../viewmodels/photos_viewmodel.dart';
+import '../../viewmodels/videos_viewmodel.dart';
 import '../screen_upload_photo/screen_upload_photo.dart';
 import '../screen_upload_shorts/screen_upload_shorts.dart';
 import '../screen_view_photo/screen_view_photo.dart';
@@ -142,6 +143,7 @@ class ScreenHome extends StatelessWidget {
     var mwidth = MediaQuery.of(context).size.width;
     var photos = Get.put(PhotosViewmodel());
     var account = Get.put(AccountViewmodel());
+    var videos = Get.put(VideosViewmodel());
 
     return Scaffold(
         backgroundColor: bgColor,
@@ -170,6 +172,8 @@ class ScreenHome extends StatelessWidget {
           color: primaryColor,
           onRefresh: () async {
             photos.getData();
+            account.getData();
+            videos.getData();
           },
           child: Obx(() => photos.isLoading.isTrue
               ? const Center(

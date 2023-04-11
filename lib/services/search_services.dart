@@ -12,6 +12,7 @@ class SearchServices {
           FormData.fromMap({"api": encrypt(apiKey), "search": encrypt(search)});
       var response = await dio.post(searchUrl, data: formData);
       if (response.statusCode == 200 || response.statusCode == 201) {
+        print(response.data["result"]);
         if (response.data["result"] != null) {
           final searchList = (response.data['result'] as List).map((e) {
             return SearchModel.fromJson(e);

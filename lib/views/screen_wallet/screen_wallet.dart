@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotix/core/constants.dart';
@@ -7,6 +8,7 @@ import 'package:spotix/views/screen_splash/screen_splash.dart';
 
 import '../../viewmodels/following_viewmodel.dart';
 import '../../viewmodels/history_viewmodel.dart';
+import '../../viewmodels/search_viewmodel.dart';
 import '../screen_add_cash/screen_add_cash.dart';
 import '../screen_send_cash/screen_send_cash.dart';
 
@@ -93,7 +95,7 @@ class ScreenWallet extends StatelessWidget {
                                         fontSize: 12),
                                   ),
                                   Text(
-                                    "thejesbin",
+                                    user.accountList[0].username.toString(),
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontFamily: "Itim",
@@ -147,20 +149,23 @@ class ScreenWallet extends StatelessWidget {
                               SizedBox(
                                 width: 15,
                               ),
-                              Container(
-                                height: 70,
-                                alignment: Alignment.center,
-                                width: 150,
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                child: Text(
-                                  "Send",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: "Itim",
-                                      fontSize: 15),
+                              InkWell(
+                                onTap: () => showSearchUser(context),
+                                child: Container(
+                                  height: 70,
+                                  alignment: Alignment.center,
+                                  width: 150,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  child: Text(
+                                    "Send",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Itim",
+                                        fontSize: 15),
+                                  ),
                                 ),
                               ),
                               Spacer(),
@@ -201,202 +206,224 @@ class ScreenWallet extends StatelessWidget {
                               ? SizedBox(
                                   height: 1,
                                 )
-                              : Column(
-                                  children: [
-                                    Row(
+                              : following.followingList.isEmpty
+                                  ? SizedBox(height: 1)
+                                  : Column(
                                       children: [
-                                        SizedBox(
-                                          width: 10,
+                                        Row(
+                                          children: [
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Text(
+                                              "Quick Send",
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontFamily: "Itim",
+                                                  fontSize: 14,
+                                                  letterSpacing: 1),
+                                            )
+                                          ],
                                         ),
-                                        Text(
-                                          "Quick Send",
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontFamily: "Itim",
-                                              fontSize: 14,
-                                              letterSpacing: 1),
-                                        )
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    SizedBox(
-                                      height: 90,
-                                      width: mwidth,
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: ListView.builder(
-                                              scrollDirection: Axis.horizontal,
-                                              itemBuilder: (context, i) {
-                                                return Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: InkWell(
-                                                    onTap: () => Get.to(() =>
-                                                        ScreenSendCash(
-                                                          profile: following
-                                                              .followingList[i]
-                                                              .profile
-                                                              .toString(),
-                                                          phone: following
-                                                              .followingList[i]
-                                                              .phone
-                                                              .toString(),
-                                                          uid: following
-                                                              .followingList[i]
-                                                              .id
-                                                              .toString(),
-                                                          username: following
-                                                              .followingList[i]
-                                                              .username
-                                                              .toString(),
-                                                        )),
-                                                    child: Container(
-                                                      height: 80,
-                                                      width: 70,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        image: DecorationImage(
-                                                          image: NetworkImage(
-                                                              following
-                                                                  .followingList[
-                                                                      i]
-                                                                  .profile
-                                                                  .toString()),
-                                                          fit: BoxFit.cover,
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        SizedBox(
+                                          height: 90,
+                                          width: mwidth,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: ListView.builder(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  itemBuilder: (context, i) {
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: InkWell(
+                                                        onTap: () => Get.to(
+                                                            () =>
+                                                                ScreenSendCash(
+                                                                  profile: following
+                                                                      .followingList[
+                                                                          i]
+                                                                      .profile
+                                                                      .toString(),
+                                                                  phone: following
+                                                                      .followingList[
+                                                                          i]
+                                                                      .phone
+                                                                      .toString(),
+                                                                  receiverId: following
+                                                                      .followingList[
+                                                                          i]
+                                                                      .id
+                                                                      .toString(),
+                                                                  username: following
+                                                                      .followingList[
+                                                                          i]
+                                                                      .username
+                                                                      .toString(),
+                                                                )),
+                                                        child: Container(
+                                                          height: 80,
+                                                          width: 70,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                            image:
+                                                                DecorationImage(
+                                                              image: NetworkImage(
+                                                                  following
+                                                                      .followingList[
+                                                                          i]
+                                                                      .profile
+                                                                      .toString()),
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              itemCount: following
-                                                  .followingList.length,
-                                            ),
-                                          )
-                                        ],
-                                      ),
+                                                    );
+                                                  },
+                                                  itemCount: following
+                                                      .followingList.length,
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
                         ),
                         history.isLoading.isTrue
                             ? CircularProgressIndicator()
-                            : SizedBox(
-                                height: mheight * 0.27,
-                                width: mwidth,
-                                child: Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 15,
-                                    ),
-                                    Row(
+                            : history.historyList.isEmpty
+                                ? SizedBox(height: 1)
+                                : SizedBox(
+                                    height: mheight * 0.27,
+                                    width: mwidth,
+                                    child: Column(
                                       children: [
                                         SizedBox(
-                                          width: 10,
+                                          height: 15,
                                         ),
-                                        Text(
-                                          "History",
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontFamily: "Itim",
-                                              fontSize: 20,
-                                              letterSpacing: 1),
-                                        )
-                                      ],
-                                    ),
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemBuilder: (context, i) {
-                                          var data = history.historyList[i];
-                                          return Container(
-                                            alignment: Alignment.center,
-                                            height: 60,
-                                            width: double.infinity,
-                                            decoration: BoxDecoration(
-                                              color: Colors.transparent,
+                                        Row(
+                                          children: [
+                                            SizedBox(
+                                              width: 10,
                                             ),
-                                            child: Row(
-                                              children: [
-                                                SizedBox(
-                                                  width: 15,
+                                            Text(
+                                              "History",
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontFamily: "Itim",
+                                                  fontSize: 20,
+                                                  letterSpacing: 1),
+                                            )
+                                          ],
+                                        ),
+                                        Expanded(
+                                          child: ListView.builder(
+                                            itemBuilder: (context, i) {
+                                              var data = history.historyList[i];
+                                              return Container(
+                                                alignment: Alignment.center,
+                                                height: 60,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.transparent,
                                                 ),
-                                                CircleAvatar(
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  backgroundImage: NetworkImage(
-                                                      data.profile.toString()),
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
+                                                child: Row(
                                                   children: [
+                                                    SizedBox(
+                                                      width: 15,
+                                                    ),
+                                                    CircleAvatar(
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      backgroundImage:
+                                                          NetworkImage(data
+                                                              .profile
+                                                              .toString()),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          data.title.toString(),
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontFamily:
+                                                                  "Itim",
+                                                              fontSize: 13,
+                                                              letterSpacing: 1),
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            data.type.toString() ==
+                                                                    "credit"
+                                                                ? Icon(
+                                                                    Icons
+                                                                        .call_received,
+                                                                    color: Colors
+                                                                        .green,
+                                                                    size: 12,
+                                                                  )
+                                                                : Icon(
+                                                                    Icons
+                                                                        .call_made,
+                                                                    color: Colors
+                                                                        .red,
+                                                                    size: 12,
+                                                                  ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                    Spacer(),
                                                     Text(
-                                                      data.title.toString(),
+                                                      "₹ ${data.amount.toString()}",
                                                       style: TextStyle(
-                                                          color: Colors.white,
+                                                          color: data.type
+                                                                      .toString() ==
+                                                                  "credit"
+                                                              ? Colors.green
+                                                              : Colors.red,
                                                           fontFamily: "Itim",
-                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 16,
                                                           letterSpacing: 1),
                                                     ),
-                                                    Row(
-                                                      children: [
-                                                        data.type.toString() ==
-                                                                "credit"
-                                                            ? Icon(
-                                                                Icons
-                                                                    .call_received,
-                                                                color: Colors
-                                                                    .green,
-                                                                size: 12,
-                                                              )
-                                                            : Icon(
-                                                                Icons.call_made,
-                                                                color:
-                                                                    Colors.red,
-                                                                size: 12,
-                                                              ),
-                                                      ],
+                                                    SizedBox(
+                                                      width: 10,
                                                     )
                                                   ],
                                                 ),
-                                                Spacer(),
-                                                Text(
-                                                  "₹ ${data.amount.toString()}",
-                                                  style: TextStyle(
-                                                      color: data.type
-                                                                  .toString() ==
-                                                              "credit"
-                                                          ? Colors.green
-                                                          : Colors.red,
-                                                      fontFamily: "Itim",
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: 16,
-                                                      letterSpacing: 1),
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                )
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                        itemCount: history.historyList.length,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              )
+                                              );
+                                            },
+                                            itemCount:
+                                                history.historyList.length,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  )
                       ],
                     )
                   ],
@@ -404,5 +431,141 @@ class ScreenWallet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  showSearchUser(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          var searchData = Get.put(SearchViewmodel());
+          ValueNotifier<int> isSearching = ValueNotifier(0);
+          return ValueListenableBuilder(
+              valueListenable: isSearching,
+              builder: (context, val, child) {
+                return SingleChildScrollView(
+                  child: Container(
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      color: bgSecondaryColor,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(10),
+                            child: CupertinoSearchTextField(
+                              onChanged: (String text) {
+                                if (text.length > 0) {
+                                  isSearching.value = 0;
+                                }
+                                {
+                                  isSearching.value = 1;
+                                  searchData.getData(text);
+                                }
+                              },
+                              itemColor: Colors.white,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "Itim",
+                              ),
+                            ),
+                          ),
+                          isSearching.value == 1
+                              ? Obx(() => searchData.isLoading.isTrue
+                                  ? Expanded(
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    )
+                                  : searchData.searchList.isEmpty
+                                      ? Text(
+                                          "No Data",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: "Itim"),
+                                        )
+                                      : buildSearchResult(context, searchData))
+                              : Center(
+                                  child: Text(
+                                    "Search & select receiver...",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Itim"),
+                                  ),
+                                )
+                        ],
+                      )),
+                );
+              });
+        },
+        enableDrag: true,
+        isScrollControlled: true);
+  }
+
+  Widget buildSearchResult(BuildContext context, SearchViewmodel searchData) {
+    return Expanded(
+        child: ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (context, i) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: InkWell(
+            onTap: () async {
+              var id = searchData.searchList[i].id.toString();
+              SharedPreferences sharedPreferences =
+                  await SharedPreferences.getInstance();
+              var uid = sharedPreferences.getString("uid");
+              if (uid == id) {
+                Navigator.pop(context);
+                Get.snackbar("Oh no", "Its your own account",
+                    colorText: Colors.white, backgroundColor: Colors.red);
+              } else {
+                Navigator.pop(context);
+                Get.to(() => ScreenSendCash(
+                    profile: searchData.searchList[i].profile.toString(),
+                    phone: searchData.searchList[i].phone.toString(),
+                    receiverId: searchData.searchList[i].id.toString(),
+                    username: searchData.searchList[i].username.toString()));
+              }
+            },
+            child: Container(
+              height: 60,
+              width: double.infinity,
+              alignment: Alignment.center,
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 10,
+                  ),
+                  CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    backgroundImage: NetworkImage(
+                        searchData.searchList[i].profile.toString()),
+                    radius: 20,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    searchData.searchList[i].username.toString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: "Itim",
+                    ),
+                  ),
+                  SizedBox(
+                    width: 3,
+                  ),
+                  searchData.searchList[i].verified == "yes"
+                      ? Image.asset("assets/verified.png", height: 15)
+                      : SizedBox(width: 1),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      itemCount: searchData.searchList.length,
+    ));
   }
 }

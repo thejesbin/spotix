@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:get/get.dart';
+import 'package:dio/dio.dart' as d;
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:swipeable_button_view/swipeable_button_view.dart';
 
+import '../../core/security.dart';
 import '../../viewmodels/account_viewmodel.dart';
 import '../../core/constants.dart';
+import '../../viewmodels/history_viewmodel.dart';
 import 'add_money_failed.dart';
 import 'add_money_success.dart';
 
@@ -20,7 +25,7 @@ class ScreenAddCash extends StatelessWidget {
     var user = Get.put(AccountViewmodel());
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Cash"),
+        title: const Text("Add Cash"),
         backgroundColor: bgColor,
       ),
       backgroundColor: bgColor,
@@ -36,11 +41,11 @@ class ScreenAddCash extends StatelessWidget {
                 builder: (context, val, child) {
                   return Text(
                     "₹${amountText.value}",
-                    style: TextStyle(
+                    style: const TextStyle(
                         color: Colors.white, fontFamily: "Itim", fontSize: 60),
                   );
                 }),
-            Spacer(),
+            const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -49,7 +54,7 @@ class ScreenAddCash extends StatelessWidget {
                 buildNumber("3"),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Row(
@@ -60,7 +65,7 @@ class ScreenAddCash extends StatelessWidget {
                 buildNumber("6"),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Row(
@@ -71,7 +76,7 @@ class ScreenAddCash extends StatelessWidget {
                 buildNumber("9"),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Row(
@@ -89,13 +94,19 @@ class ScreenAddCash extends StatelessWidget {
                 valueListenable: buttonStatus,
                 builder: (context, val, child) {
                   return InkWell(
-                    onTap: () => payment(user),
+                    onTap: () {
+                      if (buttonStatus.value) {
+                      } else {
+                        buttonStatus.value = true;
+                        payment(user);
+                      }
+                    },
                     child: Container(
                       height: 70,
                       width: mwidth * 0.9,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                               colors: [
                                 Color.fromARGB(255, 31, 94, 87),
                                 Color.fromARGB(255, 42, 112, 102),
@@ -103,13 +114,37 @@ class ScreenAddCash extends StatelessWidget {
                               begin: Alignment.topRight,
                               end: Alignment.bottomLeft),
                           borderRadius: BorderRadius.circular(20)),
-                      child: Text(
-                        "Submit",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: "Itim",
-                            fontSize: 18),
-                      ),
+                      child: buttonStatus.value == true
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Text(
+                                  "Processing payment...",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: "Itim",
+                                      fontSize: 12),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                  width: 10,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const Text(
+                              "Submit",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "Itim",
+                                  fontSize: 18),
+                            ),
                     ),
                   );
                 }),
@@ -140,7 +175,7 @@ class ScreenAddCash extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         alignment: Alignment.center,
-        child: Icon(
+        child: const Icon(
           Icons.backspace_outlined,
           color: Colors.white,
         ),
@@ -171,12 +206,43 @@ class ScreenAddCash extends StatelessWidget {
     });
   }
 
-  handlePaymentSuccess(PaymentSuccessResponse response) {
-    Get.off(AddMoneySuccess(paymentId: response.paymentId));
+  handlePaymentSuccess(PaymentSuccessResponse r) async {
+    var user = Get.put(AccountViewmodel());
+    var history = Get.put(HistoryViewmodel());
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var uid = sharedPreferences.getString("uid");
+    d.Dio dio = d.Dio();
+    final formData = d.FormData.fromMap({
+      "api": encrypt(apiKey),
+      "uid": encrypt(uid!),
+      "tid": encrypt(r.paymentId!),
+      "amount": encrypt(amountText.value),
+    });
+    final response = await dio.post(addMoneyUrl,
+        data: formData,
+        options: d.Options(
+          contentType: d.Headers.formUrlEncodedContentType,
+        ));
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      buttonStatus.value = false;
+      if (response.data['status'] == true) {
+        Get.off(() => AddMoneySuccess(paymentId: r.paymentId));
+      } else {
+        Get.off(() => AddMoneyFailed());
+      }
+      user.getData();
+      history.getData();
+    } else {
+      buttonStatus.value = false;
+      Get.off(() => AddMoneyFailed());
+      Get.snackbar("Oh no", "Payment failed!",
+          colorText: Colors.white, backgroundColor: Colors.red);
+    }
   }
 
   handlePaymentfailed(PaymentFailureResponse response) {
-    Get.off(AddMoneyFailed());
+    Get.off(() => AddMoneyFailed());
+    buttonStatus.value = false;
   }
 
   Widget buildNumber(number) {
@@ -200,8 +266,8 @@ class ScreenAddCash extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           number,
-          style:
-              TextStyle(color: Colors.white, fontFamily: "Itim", fontSize: 28),
+          style: const TextStyle(
+              color: Colors.white, fontFamily: "Itim", fontSize: 28),
         ),
       ),
     );

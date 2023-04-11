@@ -1,30 +1,39 @@
+import 'package:dio/dio.dart' as d;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotix/core/constants.dart';
+import 'package:spotix/views/screen_send_cash/send_money_failed.dart';
+import 'package:spotix/views/screen_send_cash/send_money_success.dart';
+
+import '../../core/security.dart';
+import '../../viewmodels/account_viewmodel.dart';
 
 class ScreenSendCash extends StatelessWidget {
   final String profile;
   final String phone;
-  final String uid;
+  final String receiverId;
+
   final String username;
 
   ScreenSendCash({
     super.key,
     required this.profile,
     required this.phone,
-    required this.uid,
+    required this.receiverId,
     required this.username,
   });
   ValueNotifier<String> amountText = ValueNotifier("0");
   ValueNotifier<bool> buttonStatus = ValueNotifier(false);
   @override
   Widget build(BuildContext context) {
+    var user = Get.put(AccountViewmodel());
     var mheight = MediaQuery.of(context).size.height;
     var mwidth = MediaQuery.of(context).size.width;
     var hiddenPhone = phone.substring(7, phone.length);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Cash"),
+        title: const Text("Send Cash"),
         backgroundColor: bgColor,
       ),
       backgroundColor: bgColor,
@@ -85,7 +94,7 @@ class ScreenSendCash extends StatelessWidget {
                   ),
                   const Spacer(),
                   IconButton(
-                    onPressed: () =>Navigator.of(context).pop(),
+                    onPressed: () => Navigator.of(context).pop(),
                     icon: const Icon(
                       Icons.close,
                       color: Colors.white,
@@ -152,6 +161,13 @@ class ScreenSendCash extends StatelessWidget {
                 valueListenable: buttonStatus,
                 builder: (context, val, child) {
                   return InkWell(
+                    onTap: () {
+                      if (buttonStatus.value) {
+                      } else {
+                        buttonStatus.value = true;
+                        sendMoney(user);
+                      }
+                    },
                     child: Container(
                       height: 70,
                       width: mwidth * 0.9,
@@ -165,13 +181,37 @@ class ScreenSendCash extends StatelessWidget {
                               begin: Alignment.topRight,
                               end: Alignment.bottomLeft),
                           borderRadius: BorderRadius.circular(20)),
-                      child: const Text(
-                        "Submit",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: "Itim",
-                            fontSize: 18),
-                      ),
+                      child: buttonStatus.value == true
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Processing payment...",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: "Itim",
+                                      fontSize: 12),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                  width: 10,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              "Submit",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "Itim",
+                                  fontSize: 18),
+                            ),
                     ),
                   );
                 }),
@@ -182,6 +222,48 @@ class ScreenSendCash extends StatelessWidget {
         ),
       )),
     );
+  }
+
+  sendMoney(AccountViewmodel user) async {
+    if (amountText.value == "0") {
+      Get.snackbar("Oh no", "Invalid amount",
+          colorText: Colors.white, backgroundColor: Colors.red);
+      buttonStatus.value = false;
+    } else {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      var uid = sharedPreferences.getString("uid");
+      d.Dio dio = d.Dio();
+      final formData = d.FormData.fromMap({
+        "api": encrypt(apiKey),
+        "sender_id": encrypt(uid!),
+        "receiver_id": encrypt(receiverId),
+        "amount": encrypt(amountText.value),
+      });
+      final response = await dio.post(sendMoneyUrl,
+          data: formData,
+          options: d.Options(
+            contentType: d.Headers.formUrlEncodedContentType,
+          ));
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        buttonStatus.value = false;
+        if (response.data['status'] == true) {
+          Get.offAll(() => SendMoneySuccess(
+                username: username,
+                profile: profile,
+                amount: amountText.value,
+                paymentId: response.data['pid'],
+              ));
+        } else {
+            Get.offAll(() => SendMoneyFailed());
+        }
+        user.getData();
+      } else {
+        buttonStatus.value = false;
+        Get.snackbar("Oh no", "Payment failed!",
+            colorText: Colors.white, backgroundColor: Colors.red);
+      }
+    }
   }
 
   Widget buildIcon() {

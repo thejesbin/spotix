@@ -20,21 +20,23 @@ class _ScreenSplashState extends State<ScreenSplash> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Timer(Duration(seconds: 2), () async{ 
-      SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
-     var uid= sharedPreferences.getString("uid");
-     if(uid==null){
-      Get.offAll(()=>ScreenOnboarding());
-     }
-     else{
-      Get.offAll(()=>ScreenMain());
-     }
+    Timer(Duration(seconds: 2), () async {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      var uid = sharedPreferences.getString("uid");
+      if (uid == null) {
+        Get.offAll(() => ScreenOnboarding());
+      } else {
+        Get.offAll(() => ScreenMain());
+      }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text("Splash Screen")),
+      backgroundColor:Color.fromARGB(255, 58, 131, 120),
+      body: Center(child: Image.asset("assets/splash.jpeg")),
     );
   }
 }

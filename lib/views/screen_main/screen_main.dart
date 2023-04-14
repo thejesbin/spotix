@@ -4,11 +4,11 @@ import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:spotix/core/constants.dart';
 import 'package:spotix/viewmodels/account_viewmodel.dart';
 import 'package:spotix/viewmodels/onesignal_viewmodel.dart';
-import 'package:spotix/views/screen_account/screen_account.dart';
 import 'package:spotix/views/screen_home/screen_home.dart';
 import 'package:spotix/views/screen_search/screen_search.dart';
 import 'package:spotix/views/screen_shorts/screen_shorts.dart';
 import 'package:spotix/views/screen_wallet/screen_wallet.dart';
+import '../screen_live_tv/screen_live_tv.dart';
 
 
 class ScreenMain extends StatelessWidget {
@@ -23,7 +23,7 @@ class ScreenMain extends StatelessWidget {
       ScreenSearch(),
       ScreenShorts(),
       ScreenWallet(),
-      ScreenAccount(),
+      ScreenLiveTv(),
     ];
     ValueNotifier<int> pageIndex = ValueNotifier(0);
     return ValueListenableBuilder(
@@ -68,10 +68,10 @@ class ScreenMain extends StatelessWidget {
                       title: const Text("Wallet")),
                   SalomonBottomBarItem(
                       icon: const Icon(
-                        Icons.account_circle_outlined,
+                        Icons.live_tv,
                         color: Colors.white,
                       ),
-                      title: const Text("Account")),
+                      title: const Text("Live TV")),
                 ],
               ),
             ),

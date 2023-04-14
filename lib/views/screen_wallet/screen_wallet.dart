@@ -126,7 +126,7 @@ class ScreenWallet extends StatelessWidget {
                                         fontSize: 13),
                                   ),
                                   Text(
-                                    user.accountList[0].balance.toString(),
+                                    "₹${user.accountList[0].balance}",
                                     style: const TextStyle(
                                         color: Colors.white,
                                         fontFamily: "Itim",
@@ -216,11 +216,11 @@ class ScreenWallet extends StatelessWidget {
                                   : Column(
                                       children: [
                                         Row(
-                                          children: [
-                                            const SizedBox(
+                                          children:const [
+                                             SizedBox(
                                               width: 10,
                                             ),
-                                            const Text(
+                                             Text(
                                               "Quick Send",
                                               style: TextStyle(
                                                   color: Colors.grey,
@@ -319,11 +319,11 @@ class ScreenWallet extends StatelessWidget {
                                           height: 15,
                                         ),
                                         Row(
-                                          children: [
-                                            const SizedBox(
+                                          children: const[
+                                             SizedBox(
                                               width: 10,
                                             ),
-                                            const Text(
+                                             Text(
                                               "History",
                                               style: TextStyle(
                                                   color: Colors.grey,

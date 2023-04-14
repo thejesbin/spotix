@@ -4,20 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:icons_plus/icons_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotix/core/constants.dart';
+import 'package:spotix/views/screen_account/screen_account.dart';
 import 'package:spotix/views/screen_chat_list/screen_chat_list.dart';
 import 'package:video_player/video_player.dart';
-
-import '../../models/photos_model.dart';
 import '../../viewmodels/account_viewmodel.dart';
 import '../../viewmodels/photos_viewmodel.dart';
 import '../../viewmodels/videos_viewmodel.dart';
 import '../screen_upload_photo/screen_upload_photo.dart';
 import '../screen_upload_shorts/screen_upload_shorts.dart';
-import '../screen_view_photo/screen_view_photo.dart';
 import '../widgets/photos_widget.dart';
 
 class ScreenHome extends StatelessWidget {
@@ -37,32 +34,33 @@ class ScreenHome extends StatelessWidget {
     }
   }
 
-    pickVideo(context) async {
-      try {
-        Navigator.pop(context);
-        final video = await ImagePicker().pickVideo(
-          source: ImageSource.gallery,
-          maxDuration: const Duration(seconds: 60),
+  pickVideo(context) async {
+    try {
+      Navigator.pop(context);
+      final video = await ImagePicker().pickVideo(
+        source: ImageSource.gallery,
+        maxDuration: const Duration(seconds: 60),
+      );
+      if (video == null) return;
+      VideoPlayerController testLength =
+          VideoPlayerController.file(File(video.path));
+      await testLength.initialize();
+      if (testLength.value.duration.inSeconds > 120) {
+        Get.snackbar(
+          "Ho no",
+          "Maximum video length is 120s",
+          colorText: Colors.white,
+          backgroundColor: Colors.red,
         );
-        if (video == null) return;
-        VideoPlayerController testLength =
-            VideoPlayerController.file(File(video.path));
-        await testLength.initialize();
-        if (testLength.value.duration.inSeconds > 120) {
-          Get.snackbar(
-            "Ho no",
-            "Maximum video length is 120s",
-            colorText: Colors.white,
-            backgroundColor: Colors.red,
-          );
-        } else {
-          final videoTemporary = File(video.path);
-          Get.to(() => ScreenUploadShorts(video: videoTemporary));
-        }
-      } on PlatformException catch (e) {
-        print("failed to pick video :$e");
+      } else {
+        final videoTemporary = File(video.path);
+        Get.to(() => ScreenUploadShorts(video: videoTemporary));
       }
+    } on PlatformException catch (e) {
+      print("failed to pick video :$e");
     }
+  }
+
   buildBottomSheet(context) {
     showModalBottomSheet(
         context: context,
@@ -104,7 +102,7 @@ class ScreenHome extends StatelessWidget {
                   height: 10,
                 ),
                 InkWell(
-                  onTap: ()=>pickVideo(context),
+                  onTap: () => pickVideo(context),
                   child: Row(
                     children: const [
                       SizedBox(
@@ -163,9 +161,39 @@ class ScreenHome extends StatelessWidget {
                   SharedPreferences sharedPreferences =
                       await SharedPreferences.getInstance();
                   var uid = sharedPreferences.getString("uid");
-                  Get.to(() => ScreenChatList(uid: uid!,));
+                  Get.to(() => ScreenChatList(
+                        uid: uid!,
+                      ));
                 },
-                icon: const Icon(Icons.chat_bubble))
+                icon: const Icon(Icons.chat_bubble)),
+            Obx(
+              () => account.isLoading.isTrue
+                  ? SizedBox(
+                      height: 1,
+                    )
+                  : InkWell(
+                      onTap: () => Get.to(() => ScreenAccount()),
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        alignment: Alignment.center,
+                        child: Container(
+                          height: 35,
+                          width: 35,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: NetworkImage(
+                                    account.accountList[0].profile.toString()),
+                                fit: BoxFit.cover),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                        ),
+                      ),
+                    ),
+            ),
+            SizedBox(
+              width: 5,
+            )
           ],
         ),
         body: RefreshIndicator(

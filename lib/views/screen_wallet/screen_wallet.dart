@@ -6,11 +6,13 @@ import 'package:spotix/core/constants.dart';
 import 'package:spotix/viewmodels/account_viewmodel.dart';
 import 'package:spotix/views/screen_splash/screen_splash.dart';
 
+import '../../models/history_model.dart';
 import '../../viewmodels/following_viewmodel.dart';
 import '../../viewmodels/history_viewmodel.dart';
 import '../../viewmodels/search_viewmodel.dart';
 import '../screen_add_cash/screen_add_cash.dart';
 import '../screen_send_cash/screen_send_cash.dart';
+import '../screen_withdraw/screen_withdraw.dart';
 
 class ScreenWallet extends StatelessWidget {
   const ScreenWallet({super.key});
@@ -38,7 +40,7 @@ class ScreenWallet extends StatelessWidget {
       body: Center(
         child: Obx(
           () => user.isLoading.isTrue
-              ? CircularProgressIndicator(
+              ? const CircularProgressIndicator(
                   color: Colors.white,
                 )
               : Column(
@@ -47,7 +49,7 @@ class ScreenWallet extends StatelessWidget {
                       alignment: Alignment.center,
                       height: mheight * 0.4,
                       width: mwidth,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                             colors: [
                               Color.fromARGB(255, 31, 94, 87),
@@ -67,7 +69,7 @@ class ScreenWallet extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               ),
                               InkWell(
@@ -75,14 +77,14 @@ class ScreenWallet extends StatelessWidget {
                                   SharedPreferences sharedPreferences =
                                       await SharedPreferences.getInstance();
                                   sharedPreferences.clear();
-                                  Get.offAll(() => ScreenSplash());
+                                  Get.offAll(() => const ScreenSplash());
                                 },
-                                child: Icon(
+                                child: const Icon(
                                   Icons.drag_handle_outlined,
                                   color: Colors.white,
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               ),
                               Column(
@@ -96,7 +98,7 @@ class ScreenWallet extends StatelessWidget {
                                   ),
                                   Text(
                                     user.accountList[0].username.toString(),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.white,
                                         fontFamily: "Itim",
                                         fontSize: 14),
@@ -110,7 +112,7 @@ class ScreenWallet extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              SizedBox(
+                              const SizedBox(
                                 width: 25,
                               ),
                               Column(
@@ -125,7 +127,7 @@ class ScreenWallet extends StatelessWidget {
                                   ),
                                   Text(
                                     user.accountList[0].balance.toString(),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.white,
                                         fontFamily: "Itim",
                                         fontWeight: FontWeight.bold,
@@ -133,20 +135,20 @@ class ScreenWallet extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              Spacer(),
+                              const Spacer(),
                               InkWell(
                                   onTap: () {
                                     Get.to(() => ScreenAddCash());
                                   },
-                                  child: Icon(Icons.add_circle,
+                                  child: const Icon(Icons.add_circle,
                                       color: Colors.white)),
-                              SizedBox(width: 18),
+                              const SizedBox(width: 18),
                             ],
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Row(
                             children: [
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               ),
                               InkWell(
@@ -159,7 +161,7 @@ class ScreenWallet extends StatelessWidget {
                                     color: Colors.black,
                                     borderRadius: BorderRadius.circular(25),
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     "Send",
                                     style: TextStyle(
                                         color: Colors.white,
@@ -168,29 +170,32 @@ class ScreenWallet extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              Spacer(),
-                              Container(
-                                height: 70,
-                                alignment: Alignment.center,
-                                width: 150,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                child: Text(
-                                  "Withdraw",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: "Itim",
-                                      fontSize: 15),
+                              const Spacer(),
+                              InkWell(
+                                onTap: () => Get.to(() => ScreenWithdraw()),
+                                child: Container(
+                                  height: 70,
+                                  alignment: Alignment.center,
+                                  width: 150,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  child: const Text(
+                                    "Withdraw",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: "Itim",
+                                        fontSize: 15),
+                                  ),
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               )
                             ],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           )
                         ],
@@ -203,19 +208,19 @@ class ScreenWallet extends StatelessWidget {
                       children: [
                         Obx(
                           () => following.isLoading.isTrue
-                              ? SizedBox(
+                              ? const SizedBox(
                                   height: 1,
                                 )
                               : following.followingList.isEmpty
-                                  ? SizedBox(height: 1)
+                                  ? const SizedBox(height: 1)
                                   : Column(
                                       children: [
                                         Row(
                                           children: [
-                                            SizedBox(
+                                            const SizedBox(
                                               width: 10,
                                             ),
-                                            Text(
+                                            const Text(
                                               "Quick Send",
                                               style: TextStyle(
                                                   color: Colors.grey,
@@ -302,23 +307,23 @@ class ScreenWallet extends StatelessWidget {
                                     ),
                         ),
                         history.isLoading.isTrue
-                            ? CircularProgressIndicator()
+                            ? const CircularProgressIndicator()
                             : history.historyList.isEmpty
-                                ? SizedBox(height: 1)
+                                ? const SizedBox(height: 1)
                                 : SizedBox(
                                     height: mheight * 0.27,
                                     width: mwidth,
                                     child: Column(
                                       children: [
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 15,
                                         ),
                                         Row(
                                           children: [
-                                            SizedBox(
+                                            const SizedBox(
                                               width: 10,
                                             ),
-                                            Text(
+                                            const Text(
                                               "History",
                                               style: TextStyle(
                                                   color: Colors.grey,
@@ -332,88 +337,95 @@ class ScreenWallet extends StatelessWidget {
                                           child: ListView.builder(
                                             itemBuilder: (context, i) {
                                               var data = history.historyList[i];
-                                              return Container(
-                                                alignment: Alignment.center,
-                                                height: 60,
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 15,
-                                                    ),
-                                                    CircleAvatar(
-                                                      backgroundColor:
-                                                          Colors.transparent,
-                                                      backgroundImage:
-                                                          NetworkImage(data
-                                                              .profile
-                                                              .toString()),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Text(
-                                                          data.title.toString(),
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontFamily:
-                                                                  "Itim",
-                                                              fontSize: 13,
-                                                              letterSpacing: 1),
-                                                        ),
-                                                        Row(
-                                                          children: [
-                                                            data.type.toString() ==
+                                              return InkWell(
+                                                onTap: () => transactionDetails(
+                                                    context, data),
+                                                child: Container(
+                                                  alignment: Alignment.center,
+                                                  height: 60,
+                                                  width: double.infinity,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    color: Colors.transparent,
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      const SizedBox(
+                                                        width: 15,
+                                                      ),
+                                                      CircleAvatar(
+                                                        backgroundColor:
+                                                            Colors.transparent,
+                                                        backgroundImage:
+                                                            NetworkImage(data
+                                                                .profile
+                                                                .toString()),
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            data.title
+                                                                .toString(),
+                                                            style: const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontFamily:
+                                                                    "Itim",
+                                                                fontSize: 13,
+                                                                letterSpacing:
+                                                                    1),
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              data.type.toString() ==
+                                                                      "credit"
+                                                                  ? const Icon(
+                                                                      Icons
+                                                                          .call_received,
+                                                                      color: Colors
+                                                                          .green,
+                                                                      size: 12,
+                                                                    )
+                                                                  : const Icon(
+                                                                      Icons
+                                                                          .call_made,
+                                                                      color: Colors
+                                                                          .red,
+                                                                      size: 12,
+                                                                    ),
+                                                            ],
+                                                          )
+                                                        ],
+                                                      ),
+                                                      const Spacer(),
+                                                      Text(
+                                                        "₹ ${data.amount.toString()}",
+                                                        style: TextStyle(
+                                                            color: data.type
+                                                                        .toString() ==
                                                                     "credit"
-                                                                ? Icon(
-                                                                    Icons
-                                                                        .call_received,
-                                                                    color: Colors
-                                                                        .green,
-                                                                    size: 12,
-                                                                  )
-                                                                : Icon(
-                                                                    Icons
-                                                                        .call_made,
-                                                                    color: Colors
-                                                                        .red,
-                                                                    size: 12,
-                                                                  ),
-                                                          ],
-                                                        )
-                                                      ],
-                                                    ),
-                                                    Spacer(),
-                                                    Text(
-                                                      "₹ ${data.amount.toString()}",
-                                                      style: TextStyle(
-                                                          color: data.type
-                                                                      .toString() ==
-                                                                  "credit"
-                                                              ? Colors.green
-                                                              : Colors.red,
-                                                          fontFamily: "Itim",
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 16,
-                                                          letterSpacing: 1),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 10,
-                                                    )
-                                                  ],
+                                                                ? Colors.green
+                                                                : Colors.red,
+                                                            fontFamily: "Itim",
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontSize: 16,
+                                                            letterSpacing: 1),
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      )
+                                                    ],
+                                                  ),
                                                 ),
                                               );
                                             },
@@ -433,6 +445,117 @@ class ScreenWallet extends StatelessWidget {
     );
   }
 
+  transactionDetails(BuildContext context, HistoryModel data) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            insetPadding: EdgeInsets.all(2),
+            backgroundColor: Colors.black,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            content: Container(
+              height: 300,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: bgColor,
+              ),
+              width: 250,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      SizedBox(width: 10),
+                      data.type.toString() == "credit"
+                          ? const Icon(
+                              Icons.call_received,
+                              color: Colors.green,
+                              size: 18,
+                            )
+                          : const Icon(
+                              Icons.call_made,
+                              color: Colors.red,
+                              size: 18,
+                            ),
+                      Spacer(),
+                      Text(
+                        data.date.toString(),
+                        style: const TextStyle(
+                            color: Colors.grey,
+                            fontFamily: "Itim",
+                            fontSize: 9,
+                            letterSpacing: 186),
+                      ),
+                      SizedBox(width:5),
+                      Text(
+                        data.time.toString(),
+                        style: const TextStyle(
+                            color: Colors.grey,
+                            fontFamily: "Itim",
+                            fontSize: 9,
+                            letterSpacing: 1),
+                      ),
+                      Spacer(),
+                      InkWell(
+                          onTap: () => Navigator.of(context).pop(),
+                          child: Icon(Icons.close, color: Colors.white))
+                    ],
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                      height: 90,
+                      width: 90,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: NetworkImage(data.profile.toString()),
+                              fit: BoxFit.cover),
+                          borderRadius: BorderRadius.circular(15))),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    data.title.toString(),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontFamily: "Itim",
+                        fontSize: 13,
+                        letterSpacing: 1),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "₹ ${data.amount.toString()}",
+                    style: TextStyle(
+                        color: data.type.toString() == "credit"
+                            ? Colors.green
+                            : Colors.red,
+                        fontFamily: "Itim",
+                        fontWeight: FontWeight.w600,
+                        fontSize: 25,
+                        letterSpacing: 1),
+                  ),
+                  Spacer(),
+                  Text(
+                    "ID: ${data.transactionID}",
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontFamily: "Itim",
+                        fontSize: 13,
+                        letterSpacing: 1),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   showSearchUser(BuildContext context) {
     showModalBottomSheet(
         context: context,
@@ -449,7 +572,7 @@ class ScreenWallet extends StatelessWidget {
                       child: Column(
                         children: [
                           Padding(
-                            padding: EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(10),
                             child: CupertinoSearchTextField(
                               onChanged: (String text) {
                                 if (text.length > 0) {
@@ -461,7 +584,7 @@ class ScreenWallet extends StatelessWidget {
                                 }
                               },
                               itemColor: Colors.white,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontFamily: "Itim",
                               ),
@@ -469,7 +592,7 @@ class ScreenWallet extends StatelessWidget {
                           ),
                           isSearching.value == 1
                               ? Obx(() => searchData.isLoading.isTrue
-                                  ? Expanded(
+                                  ? const Expanded(
                                       child: Center(
                                         child: CircularProgressIndicator(
                                           color: Colors.white,
@@ -477,14 +600,14 @@ class ScreenWallet extends StatelessWidget {
                                       ),
                                     )
                                   : searchData.searchList.isEmpty
-                                      ? Text(
+                                      ? const Text(
                                           "No Data",
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: "Itim"),
                                         )
                                       : buildSearchResult(context, searchData))
-                              : Center(
+                              : const Center(
                                   child: Text(
                                     "Search & select receiver...",
                                     style: TextStyle(
@@ -505,7 +628,7 @@ class ScreenWallet extends StatelessWidget {
     return Expanded(
         child: ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, i) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
@@ -534,7 +657,7 @@ class ScreenWallet extends StatelessWidget {
               alignment: Alignment.center,
               child: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   CircleAvatar(
@@ -543,22 +666,22 @@ class ScreenWallet extends StatelessWidget {
                         searchData.searchList[i].profile.toString()),
                     radius: 20,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Text(
                     searchData.searchList[i].username.toString(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontFamily: "Itim",
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 3,
                   ),
                   searchData.searchList[i].verified == "yes"
                       ? Image.asset("assets/verified.png", height: 15)
-                      : SizedBox(width: 1),
+                      : const SizedBox(width: 1),
                 ],
               ),
             ),

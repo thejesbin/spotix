@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:dio/dio.dart' as d;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -156,13 +158,15 @@ class PhotosWidget extends StatelessWidget {
           ),
           InkWell(
             onDoubleTap: () => likePhoto(),
-            child: Container(
-              height: 450,
-              width: mwidth * 0.99,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  image: DecorationImage(
-                      image: NetworkImage(postUrl), fit: BoxFit.cover)),
+            child: InteractiveViewer(
+              child: Container(
+                height: 450,
+                width: mwidth * 0.99,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    image: DecorationImage(
+                        image: NetworkImage(postUrl), fit: BoxFit.cover)),
+              ),
             ),
           ),
           const SizedBox(

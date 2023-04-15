@@ -1,9 +1,16 @@
 import 'dart:io';
 
 import 'package:chewie/chewie.dart';
+import 'package:dio/dio.dart' as d;
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotix/core/constants.dart';
 import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+
+import '../../core/security.dart';
+import '../screen_main/screen_main.dart';
 
 class ScreenUploadShorts extends StatefulWidget {
   final File video;
@@ -19,11 +26,21 @@ class _ScreenUploadShortsState extends State<ScreenUploadShorts> {
   ValueNotifier<int> isUploading = ValueNotifier(0);
   ValueNotifier<int> uploadingPercentage = ValueNotifier(0);
   ChewieController? _chewieController;
+  //late var videoThumbnail;
   @override
   void initState() {
     super.initState();
     initializePlayer();
+    // getThumbNail();
   }
+
+  // getThumbNail() async {
+  //   videoThumbnail = await VideoThumbnail.thumbnailData(
+  //     video: widget.video.path,
+  //     imageFormat: ImageFormat.JPEG,
+  //     quality: 80,
+  //   );
+  // }
 
   Future initializePlayer() async {
     _videoPlayerController = VideoPlayerController.file(widget.video);
@@ -124,7 +141,7 @@ class _ScreenUploadShortsState extends State<ScreenUploadShorts> {
                               ));
                     }),
                 const SizedBox(
-                  width: 5,
+                  width: 10,
                 ),
               ],
             ),
@@ -137,5 +154,73 @@ class _ScreenUploadShortsState extends State<ScreenUploadShorts> {
     );
   }
 
-  uploadVideo() {}
+  uploadVideo() async {
+    var caption = captionController.text;
+    if (caption.isEmpty) {
+      Get.snackbar("Oh No!", "Enter a caption",
+          colorText: Colors.white, backgroundColor: Colors.red);
+    } else if (caption.length > 80) {
+      Get.snackbar("Oh No!", "Maximum length is 80 characters",
+          colorText: Colors.white, backgroundColor: Colors.red);
+    } else {
+      isUploading.value = 1;
+      final videoThumbnail = await VideoThumbnail.thumbnailData(
+        video: widget.video.path,
+        imageFormat: ImageFormat.JPEG,
+        quality: 80,
+      );
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      var uid = sharedPreferences.getString('uid');
+      captionController.text = "";
+      FocusManager.instance.primaryFocus?.unfocus();
+      Get.snackbar("", "",
+          colorText: Colors.white,
+          backgroundColor: bgColor,
+          titleText: LinearProgressIndicator(
+            color: Colors.white,
+            backgroundColor: primaryColor,
+          ),
+          messageText: Row(
+            children: const [
+              Text(
+                "Uploading shorts....",
+                style: TextStyle(color: Colors.white, fontFamily: "Itim"),
+              )
+            ],
+          ),
+          duration: Duration(minutes: 5));
+      d.Dio dio = d.Dio();
+      var formdata = d.FormData.fromMap(
+        {
+          "video": await d.MultipartFile.fromFile(widget.video.path),
+          "thumb": d.MultipartFile.fromBytes(videoThumbnail!),
+          "uid": encrypt(uid!),
+          "caption": encrypt(caption),
+          "api": encrypt(apiKey)
+        },
+      );
+      final response = await dio.post(
+        uploadVideoUrl,
+        data: formdata,
+        options: d.Options(contentType: d.Headers.formUrlEncodedContentType),
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        isUploading.value = 0;
+        Get.closeAllSnackbars();
+        if (response.data['status'] == true) {
+          Get.snackbar("Hey Hey", response.data['msg'],
+              backgroundColor: Colors.green, colorText: Colors.white);
+          Get.offAll(() => const ScreenMain());
+        } else {
+          Get.snackbar("Oh no", response.data['msg'],
+              backgroundColor: Colors.red, colorText: Colors.white);
+          Get.offAll(() => const ScreenMain());
+        }
+      } else {
+         Get.closeAllSnackbars();
+        isUploading.value = 0;
+      }
+    }
+  }
 }

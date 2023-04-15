@@ -150,6 +150,7 @@ class ScreenUploadPhoto extends StatelessWidget {
           Get.offAll(() => const ScreenMain());
         }
       } else {
+         Get.closeAllSnackbars();
         isUploading.value = 0;
       }
     }

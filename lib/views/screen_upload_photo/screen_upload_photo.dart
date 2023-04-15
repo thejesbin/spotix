@@ -96,6 +96,24 @@ class ScreenUploadPhoto extends StatelessWidget {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       var uid = sharedPreferences.getString('uid');
+      captionController.text="";
+      FocusManager.instance.primaryFocus?.unfocus();
+      Get.snackbar("", "",
+          colorText: Colors.white,
+          backgroundColor: bgColor,
+          titleText: LinearProgressIndicator(
+            color: Colors.white,
+            backgroundColor: primaryColor,
+          ),
+          messageText: Row(
+            children: const [
+              Text(
+                "Uploading photo....",
+                style: TextStyle(color: Colors.white, fontFamily: "Itim"),
+              )
+            ],
+          ),
+          duration: Duration(minutes: 5));
       d.Dio dio = d.Dio();
       var formdata = d.FormData.fromMap(
         {
@@ -121,13 +139,13 @@ class ScreenUploadPhoto extends StatelessWidget {
       });
       if (response.statusCode == 200 || response.statusCode == 201) {
         isUploading.value = 0;
-
+        Get.closeAllSnackbars();
         if (response.data['status'] == true) {
           Get.snackbar("Hey Hey", response.data['msg'],
               backgroundColor: Colors.green, colorText: Colors.white);
           Get.offAll(() => const ScreenMain());
         } else {
-          Get.snackbar("Hey Hey", response.data['msg'],
+          Get.snackbar("Oh no", response.data['msg'],
               backgroundColor: Colors.red, colorText: Colors.white);
           Get.offAll(() => const ScreenMain());
         }

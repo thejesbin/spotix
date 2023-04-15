@@ -1,13 +1,83 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart' as d;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotix/core/constants.dart';
 import 'package:spotix/viewmodels/account_viewmodel.dart';
 
+import '../../core/security.dart';
 import '../widgets/photos_tab_widget.dart';
 import '../widgets/videos_tab_widget.dart';
 
 class ScreenAccount extends StatelessWidget {
   const ScreenAccount({super.key});
+  pickImage(context) async {
+    Navigator.pop(context);
+    try {
+      final image = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 75,
+      );
+      if (image == null) return;
+      final imageTemporary = File(image.path);
+      updateDp(imageTemporary);
+      // Get.to(() => ScreenUploadPhoto(image: imageTemporary));
+    } on PlatformException catch (e) {
+      print("failed to pick image :$e");
+    }
+  }
+
+  updateDp(File image) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var uid = sharedPreferences.getString('uid');
+    Get.snackbar("", "",
+        colorText: Colors.white,
+        backgroundColor: bgColor,
+        titleText: LinearProgressIndicator(
+          color: Colors.white,
+          backgroundColor: primaryColor,
+        ),
+        messageText: Row(
+          children: const [
+            Text(
+              "Updating your profile photo!",
+              style: TextStyle(color: Colors.white, fontFamily: "Itim"),
+            )
+          ],
+        ),
+        duration: Duration(seconds: 10));
+    d.Dio dio = d.Dio();
+    var formdata = d.FormData.fromMap(
+      {
+        "image": await d.MultipartFile.fromFile(image.path),
+        "uid": encrypt(uid!),
+        "api": encrypt(apiKey)
+      },
+    );
+    final response = await dio.post(
+      updateDpUrl,
+      data: formdata,
+      options: d.Options(contentType: d.Headers.formUrlEncodedContentType),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      Get.closeAllSnackbars();
+      if (response.data['status'] == true) {
+        Get.snackbar("Hey Hey", response.data['msg'],
+            backgroundColor: Colors.green, colorText: Colors.white);
+        var user = Get.put(AccountViewmodel());
+        user.getData();
+      } else {
+        Get.snackbar("Oh no", response.data['msg'],
+            backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } else {
+      Get.closeAllSnackbars();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +118,14 @@ class ScreenAccount extends StatelessWidget {
                             const SizedBox(
                               width: 10,
                             ),
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.transparent,
-                              backgroundImage: NetworkImage(
-                                  user.accountList[0].profile.toString()),
+                            InkWell(
+                              onTap: () => pickImage(context),
+                              child: CircleAvatar(
+                                radius: 30,
+                                backgroundColor: Colors.transparent,
+                                backgroundImage: NetworkImage(
+                                    user.accountList[0].profile.toString()),
+                              ),
                             ),
                             const Spacer(),
                             const Spacer(),

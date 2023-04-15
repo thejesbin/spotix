@@ -109,8 +109,8 @@ class ScreenViewUser extends StatelessWidget {
                           ),
                           const Spacer(),
                           InkWell(
-                            onTap: () =>
-                                buildFollowersSheet(context, following),
+                            // onTap: () =>
+                            //     buildFollowersSheet(context, following),
                             child: Column(
                               children: [
                                 ValueListenableBuilder(

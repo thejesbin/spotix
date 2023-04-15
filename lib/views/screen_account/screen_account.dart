@@ -10,6 +10,7 @@ import 'package:spotix/core/constants.dart';
 import 'package:spotix/viewmodels/account_viewmodel.dart';
 
 import '../../core/security.dart';
+import '../screen_edit_profile/screen_edit_profile.dart';
 import '../widgets/photos_tab_widget.dart';
 import '../widgets/videos_tab_widget.dart';
 
@@ -229,20 +230,23 @@ class ScreenAccount extends StatelessWidget {
                         SizedBox(
                           height: mheight * 0.03,
                         ),
-                        Container(
-                          alignment: Alignment.center,
-                          height: 35,
-                          width: mwidth * 0.8,
-                          decoration: BoxDecoration(
-                            color: bgSecondaryColor,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Text(
-                            "Edit Profile",
-                            style: TextStyle(
-                              fontFamily: "Itim",
-                              fontSize: 15,
-                              color: Colors.white,
+                        InkWell(
+                          onTap: () => Get.to(()=>ScreenEditProfile()),
+                          child: Container(
+                            alignment: Alignment.center,
+                            height: 35,
+                            width: mwidth * 0.8,
+                            decoration: BoxDecoration(
+                              color: bgSecondaryColor,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              "Edit Profile",
+                              style: TextStyle(
+                                fontFamily: "Itim",
+                                fontSize: 15,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),

@@ -7,12 +7,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotix/core/constants.dart';
+import 'package:spotix/viewmodels/history_viewmodel.dart';
 import 'package:spotix/views/screen_account/screen_account.dart';
 import 'package:spotix/views/screen_chat_list/screen_chat_list.dart';
 import 'package:video_player/video_player.dart';
 import '../../viewmodels/account_viewmodel.dart';
 import '../../viewmodels/photos_viewmodel.dart';
 import '../../viewmodels/videos_viewmodel.dart';
+import '../screen_notifications/screen_notifications.dart';
 import '../screen_upload_photo/screen_upload_photo.dart';
 import '../screen_upload_shorts/screen_upload_shorts.dart';
 import '../widgets/photos_widget.dart';
@@ -142,6 +144,7 @@ class ScreenHome extends StatelessWidget {
     var photos = Get.put(PhotosViewmodel());
     var account = Get.put(AccountViewmodel());
     var videos = Get.put(VideosViewmodel());
+    var history = Get.put(HistoryViewmodel());
 
     return Scaffold(
         backgroundColor: bgColor,
@@ -155,7 +158,9 @@ class ScreenHome extends StatelessWidget {
             IconButton(
                 onPressed: () => buildBottomSheet(context),
                 icon: const Icon(HeroIcons.squares_plus)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.notifications)),
+            IconButton(
+                onPressed: () => Get.to(() => ScreenNotifications()),
+                icon: const Icon(Icons.notifications)),
             IconButton(
                 onPressed: () async {
                   SharedPreferences sharedPreferences =
@@ -202,6 +207,7 @@ class ScreenHome extends StatelessWidget {
             photos.getData();
             account.getData();
             videos.getData();
+            history.getData();
           },
           child: Obx(() => photos.isLoading.isTrue
               ? const Center(

@@ -6,6 +6,7 @@ class ChatlistModel {
   String? date;
   String? time;
   String? username;
+  String? phone;
   String? profile;
   String? verified;
   ChatlistModel({
@@ -18,6 +19,7 @@ class ChatlistModel {
     this.username,
     this.profile,
     this.verified,
+    this.phone,
   });
 
   factory ChatlistModel.fromJson(Map<String, dynamic> json) {
@@ -30,7 +32,8 @@ class ChatlistModel {
         time: json['time'],
         username: json['username'],
         profile: json['profile'],
-        verified: json['verified']);
+        verified: json['verified'],
+        phone: json['phone']);
   }
 
   Map<String, dynamic> toJson() {
@@ -43,7 +46,8 @@ class ChatlistModel {
       "time": time,
       "username": username,
       "profile": profile,
-      "verified": verified
+      "verified": verified,
+      "phone": phone
     };
   }
 }

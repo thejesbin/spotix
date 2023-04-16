@@ -72,18 +72,18 @@ class ScreenWallet extends StatelessWidget {
                               const SizedBox(
                                 width: 15,
                               ),
-                              InkWell(
-                                onTap: () async {
-                                  SharedPreferences sharedPreferences =
-                                      await SharedPreferences.getInstance();
-                                  sharedPreferences.clear();
-                                  Get.offAll(() => const ScreenSplash());
-                                },
-                                child: const Icon(
-                                  Icons.drag_handle_outlined,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              // InkWell(
+                              //   onTap: () async {
+                              //     SharedPreferences sharedPreferences =
+                              //         await SharedPreferences.getInstance();
+                              //     sharedPreferences.clear();
+                              //     Get.offAll(() => const ScreenSplash());
+                              //   },
+                              //   child: const Icon(
+                              //     Icons.drag_handle_outlined,
+                              //     color: Colors.white,
+                              //   ),
+                              // ),
                               const SizedBox(
                                 width: 15,
                               ),

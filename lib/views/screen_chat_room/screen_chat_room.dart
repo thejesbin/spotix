@@ -1,18 +1,24 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart' as d;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:spotix/core/constants.dart';
 import 'package:get/get.dart';
+import 'package:spotix/views/screen_send_cash/screen_send_cash.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:grouped_list/grouped_list.dart';
+import '../../core/security.dart';
+import '../../models/chat_models.dart';
+import '../../services/chat_services.dart';
 
-import '../screen_videocall/screen_videocall.dart';
-
-class ScreenChatRoom extends StatelessWidget {
+class ScreenChatRoom extends StatefulWidget {
   final String receiverId;
   final String username;
   final String profile;
   final String verified;
   final String senderId;
   final String senderName;
+  final String phone;
   const ScreenChatRoom(
       {super.key,
       required this.receiverId,
@@ -20,8 +26,43 @@ class ScreenChatRoom extends StatelessWidget {
       required this.profile,
       required this.verified,
       required this.senderId,
-      required this.senderName});
+      required this.senderName,
+      required this.phone});
 
+  @override
+  State<ScreenChatRoom> createState() => _ScreenChatRoomState();
+}
+
+class _ScreenChatRoomState extends State<ScreenChatRoom> {
+  var chatList = <ChatModel>[];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData(widget.senderId, widget.receiverId);
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      getData(widget.senderId, widget.receiverId);
+    });
+  }
+
+  getData(senderId, receiverId) async {
+    var data = await ChatServices().getChats(receiverId, senderId);
+    if (data != null) {
+      chatList = data;
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  TextEditingController controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     ValueNotifier<int> isTextEmpty = ValueNotifier(1);
@@ -36,13 +77,13 @@ class ScreenChatRoom extends StatelessWidget {
             CircleAvatar(
               radius: 15,
               backgroundColor: Colors.transparent,
-              backgroundImage: NetworkImage(profile),
+              backgroundImage: NetworkImage(widget.profile),
             ),
             const SizedBox(
               width: 5,
             ),
             Text(
-              username,
+              widget.username,
               style: const TextStyle(
                 color: Colors.white,
                 fontFamily: "Itim",
@@ -68,7 +109,45 @@ class ScreenChatRoom extends StatelessWidget {
       ),
       body: Column(
         children: [
-          Expanded(child: Container()),
+          SizedBox(
+            height: 15,
+          ),
+          Expanded(
+            child: chatList.isEmpty
+                ? Center(
+                    child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: NetworkImage(widget.profile),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text("Start messaging now...",
+                          style: TextStyle(
+                              color: Colors.white, fontFamily: "Itim"))
+                    ],
+                  ))
+                : GroupedListView<ChatModel, DateTime>(
+                    elements: chatList,
+                    groupBy: (chats) => DateTime(2023),
+                    groupHeaderBuilder: (ChatModel chat) => SizedBox(),
+                    indexedItemBuilder: (context, ChatModel chat, i) => Align(
+                      alignment: chatList[i].senderId == widget.senderId
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Card(
+                        elevation: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(chatList[i].message.toString()),
+                        ),
+                      ),
+                    ),
+                  ),
+          ),
           Container(
             alignment: Alignment.center,
             width: mwidth * 0.98,
@@ -109,36 +188,37 @@ class ScreenChatRoom extends StatelessWidget {
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                 ),
+                                controller: controller,
                               ),
                             ),
                             isTextEmpty.value == 0
                                 ? SizedBox()
                                 : Row(
                                     children: const [
-                                      Icon(
-                                        Icons.attach_file,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      Icon(
-                                        Icons.currency_rupee_rounded,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      Icon(
-                                        Icons.photo_camera,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      )
+                                      // Icon(
+                                      //   Icons.attach_file,
+                                      //   color: Colors.white,
+                                      //   size: 18,
+                                      // ),
+                                      // SizedBox(
+                                      //   width: 5,
+                                      // ),
+                                      // Icon(
+                                      //   Icons.currency_rupee_rounded,
+                                      //   color: Colors.white,
+                                      //   size: 18,
+                                      // ),
+                                      // SizedBox(
+                                      //   width: 5,
+                                      // ),
+                                      // Icon(
+                                      //   Icons.photo_camera,
+                                      //   color: Colors.white,
+                                      //   size: 18,
+                                      // ),
+                                      // SizedBox(
+                                      //   width: 10,
+                                      // )
                                     ],
                                   )
                           ],
@@ -149,20 +229,33 @@ class ScreenChatRoom extends StatelessWidget {
                 ValueListenableBuilder(
                     valueListenable: isTextEmpty,
                     builder: (context, val, child) {
-                      return isTextEmpty.value == 0
-                          ? InkWell(
-                              onTap: () => Get.to(() => CallPage()),
+                      // return isTextEmpty.value == 0
+                      //     ?
+                      return InkWell(
+                              onTap: () => sendMessage(),
                               child: CircleAvatar(
                                 backgroundColor: primaryColor,
                                 radius: 25,
                                 child: const Icon(Icons.send),
                               ),
-                            )
-                          : CircleAvatar(
-                              backgroundColor: primaryColor,
-                              radius: 25,
-                              child: const Icon(Icons.mic),
                             );
+                          // : InkWell(
+                          //     onTap: () => Get.to(() => ScreenSendCash(
+                          //         profile: widget.profile,
+                          //         phone: widget.phone,
+                          //         receiverId: widget.receiverId,
+                          //         username: widget.username)),
+                          //     child: CircleAvatar(
+                          //       backgroundColor: primaryColor,
+                          //       radius: 25,
+                          //       child: const Text("₹",
+                          //           style: TextStyle(
+                          //             color: Colors.white,
+                          //             fontFamily: "Itim",
+                          //             fontSize: 30,
+                          //           )),
+                          //     ),
+                          //   );
                     }),
                 const SizedBox(
                   width: 10,
@@ -175,10 +268,43 @@ class ScreenChatRoom extends StatelessWidget {
     );
   }
 
+  sendMessage() async {
+   if(controller.text.isEmpty){
+      Get.snackbar("Oh no", "Type your message!",
+          backgroundColor: Colors.red, colorText: Colors.white);
+   }
+   else{
+     FocusManager.instance.primaryFocus?.unfocus();
+    var message = controller.text;
+    controller.text = "";
+    setState(() {
+      chatList.add(ChatModel(
+          id: "",
+          senderId: widget.senderId,
+          receiverId: widget.receiverId,
+          message: message));
+    });
+    d.Dio dio = d.Dio();
+    var formData = d.FormData.fromMap({
+      "api": encrypt(apiKey),
+      "sender_id": encrypt(widget.senderId),
+      "receiver_id": encrypt(widget.receiverId),
+      "message": encrypt(message)
+    });
+    var response = await dio.post(sendChatUrl, data: formData);
+
+    // var response = await dio.get(
+    //     "https://steycode.in/test/send_chat.php?sender_id=${widget.senderId}&receiver_id=${widget.receiverId}&message=$text");
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print(response.data['status']);
+    }
+   }
+  }
+
   Widget callButton(bool isVideoCall) {
     return ZegoSendCallInvitationButton(
       isVideoCall: isVideoCall,
-      invitees: [ZegoUIKitUser(id: receiverId, name: username)],
+      invitees: [ZegoUIKitUser(id: widget.receiverId, name: widget.username)],
       resourceID: "zegouikit_call",
       iconSize: const Size(40, 40),
       buttonSize: const Size(50, 50),

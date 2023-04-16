@@ -141,6 +141,8 @@ class ScreenComments extends StatelessWidget {
   postComment(CommentsViewmodel comments, AccountViewmodel user) async {
     var comment = controller.text;
     if (comment.isEmpty) {
+      Get.snackbar("Oh no", "Type your comment!",
+          backgroundColor: Colors.red, colorText: Colors.white);
     } else {
       comment="";
       comments.isLoading.value=true;
@@ -159,6 +161,9 @@ class ScreenComments extends StatelessWidget {
         print("hello");
         comments.getData(pid);
         
+      }
+      else{
+        print("No response");
       }
     }
   }

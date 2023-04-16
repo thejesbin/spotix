@@ -63,6 +63,7 @@ dependencies:
   path_provider: ^2.0.14
   share_plus: ^6.3.2
   better_player: ^0.0.83
+  grouped_list: ^5.1.2
 
 dev_dependencies:
   flutter_test:

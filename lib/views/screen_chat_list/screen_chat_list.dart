@@ -97,6 +97,7 @@ class _ScreenChatListState extends State<ScreenChatList> {
                                   profile: chats.chatList[i].profile.toString(),
                                   verified:
                                       chats.chatList[i].verified.toString(),
+                                  phone: chats.chatList[i].phone.toString(),
                                 )),
                             child: SizedBox(
                               height: 55,
@@ -115,11 +116,25 @@ class _ScreenChatListState extends State<ScreenChatList> {
                                   const SizedBox(
                                     width: 10,
                                   ),
-                                  Text(
-                                    chats.chatList[i].username.toString(),
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: "Itim"),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        chats.chatList[i].username.toString(),
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: "Itim"),
+                                      ),
+                                      Text(
+                                        chats.chatList[i].message.toString(),
+                                        style: const TextStyle(
+                                            color: Colors.grey,
+                                            fontFamily: "Itim",
+                                            fontSize: 10),
+                                      ),
+                                    ],
                                   ),
                                   const Spacer(),
                                   Text(

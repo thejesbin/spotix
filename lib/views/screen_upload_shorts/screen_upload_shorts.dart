@@ -1,12 +1,10 @@
 import 'dart:io';
-
-import 'package:chewie/chewie.dart';
 import 'package:dio/dio.dart' as d;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotix/core/constants.dart';
-import 'package:video_player/video_player.dart';
+import 'package:better_player/better_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../../core/security.dart';
@@ -21,11 +19,12 @@ class ScreenUploadShorts extends StatefulWidget {
 }
 
 class _ScreenUploadShortsState extends State<ScreenUploadShorts> {
-  late VideoPlayerController _videoPlayerController;
+  //late VideoPlayerController _videoPlayerController;
+   late BetterPlayerController betterPlayerController;
   TextEditingController captionController = TextEditingController();
   ValueNotifier<int> isUploading = ValueNotifier(0);
   ValueNotifier<int> uploadingPercentage = ValueNotifier(0);
-  ChewieController? _chewieController;
+ // ChewieController? _chewieController;
   //late var videoThumbnail;
   @override
   void initState() {
@@ -43,23 +42,38 @@ class _ScreenUploadShortsState extends State<ScreenUploadShorts> {
   // }
 
   Future initializePlayer() async {
-    _videoPlayerController = VideoPlayerController.file(widget.video);
-    await Future.wait([_videoPlayerController.initialize()]);
-    _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        autoPlay: true,
-        showControls: true,
-        materialProgressColors: ChewieProgressColors(
-            playedColor: primaryColor, backgroundColor: Colors.white));
-    setState(() {});
+    // _videoPlayerController = VideoPlayerController.file(widget.video);
+    // await Future.wait([_videoPlayerController.initialize()]);
+    // _chewieController = ChewieController(
+    //     videoPlayerController: _videoPlayerController,
+    //     autoPlay: true,
+    //     showControls: true,
+    //     materialProgressColors: ChewieProgressColors(
+    //         playedColor: primaryColor, backgroundColor: Colors.white));
+    // setState(() {});
+    BetterPlayerDataSource betterPlayerDataSource = BetterPlayerDataSource(
+        BetterPlayerDataSourceType.file,
+        widget.video.path);
+    betterPlayerController = BetterPlayerController(
+         BetterPlayerConfiguration(
+           
+            autoPlay: true,
+            aspectRatio: 9 / 16,
+            fit: BoxFit.contain,
+            controlsConfiguration: BetterPlayerControlsConfiguration(
+              enableFullscreen: false,
+              enableSkips: true,
+              enableRetry: false,
+            )),
+        betterPlayerDataSource: betterPlayerDataSource);
   }
 
-  @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    _chewieController!.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _videoPlayerController.dispose();
+  //   _chewieController!.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -82,20 +96,22 @@ class _ScreenUploadShortsState extends State<ScreenUploadShorts> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  _chewieController != null &&
-                          _chewieController!
-                              .videoPlayerController.value.isInitialized
-                      ? Chewie(
-                          controller: _chewieController!,
-                        )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            CircularProgressIndicator(),
-                            SizedBox(height: 10),
-                            Text('Loading...')
-                          ],
-                        ),
+                   BetterPlayer(controller: betterPlayerController),
+                  // _chewieController != null &&
+                  //         _chewieController!
+                  //             .videoPlayerController.value.isInitialized
+                  //     ? Chewie(
+                  //         controller: _chewieController!,
+                  //       )
+                  //     : Column(
+                  //         mainAxisAlignment: MainAxisAlignment.center,
+                  //         children: const [
+                  //           CircularProgressIndicator(),
+                  //           SizedBox(height: 10),
+                  //           Text('Loading...')
+                  //         ],
+                  //       ),
+
                 ],
               ),
             ),

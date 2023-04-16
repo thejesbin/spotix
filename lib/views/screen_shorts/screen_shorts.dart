@@ -1,4 +1,3 @@
-import 'package:chewie/chewie.dart';
 import 'package:dio/dio.dart' as d;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,7 +5,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotix/core/constants.dart';
 import 'package:card_swiper/card_swiper.dart';
-import 'package:video_player/video_player.dart';
+import 'package:better_player/better_player.dart';
 
 import '../../core/security.dart';
 import '../../viewmodels/videos_viewmodel.dart';
@@ -79,8 +78,9 @@ class VideoScreen extends StatefulWidget {
 }
 
 class _VideoScreenState extends State<VideoScreen> {
-  late VideoPlayerController _videoPlayerController;
-  ChewieController? _chewieController;
+  late BetterPlayerController betterPlayerController;
+  // late VideoPlayerController _videoPlayerController;
+  // ChewieController? _chewieController;
   @override
   void initState() {
     // TODO: implement initState
@@ -89,24 +89,38 @@ class _VideoScreenState extends State<VideoScreen> {
   }
 
   Future initializePlayer() async {
-    _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
-    await Future.wait([_videoPlayerController.initialize()]);
-    _chewieController = ChewieController(
-      videoPlayerController: _videoPlayerController,
-      autoPlay: true,
-      showControls: true,
-      looping: true,
-      materialProgressColors: ChewieProgressColors(playedColor: primaryColor),
-    );
-    setState(() {});
+    // _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
+    // await Future.wait([_videoPlayerController.initialize()]);
+    // _chewieController = ChewieController(
+    //   videoPlayerController: _videoPlayerController,
+    //   autoPlay: true,
+    //   showControls: true,
+    //   looping: true,
+    //   materialProgressColors: ChewieProgressColors(playedColor: primaryColor),
+    // );
+    // setState(() {});
+    BetterPlayerDataSource betterPlayerDataSource = BetterPlayerDataSource(
+        BetterPlayerDataSourceType.network, widget.videoUrl);
+    betterPlayerController = BetterPlayerController(
+        BetterPlayerConfiguration(
+            looping: true,
+            autoPlay: true,
+            aspectRatio: 9 / 16,
+            fit: BoxFit.contain,
+            controlsConfiguration: BetterPlayerControlsConfiguration(
+              enableFullscreen: false,
+              enableSkips: true,
+              enableRetry: false,
+            )),
+        betterPlayerDataSource: betterPlayerDataSource);
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _videoPlayerController.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   // TODO: implement dispose
+  //   super.dispose();
+  //   _videoPlayerController.dispose();
+  // }
 
   ValueNotifier<int> likeCount = ValueNotifier(0);
   ValueNotifier<String> liked = ValueNotifier("");
@@ -117,14 +131,15 @@ class _VideoScreenState extends State<VideoScreen> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        _chewieController != null &&
-                _chewieController!.videoPlayerController.value.isInitialized
-            ? Chewie(controller: _chewieController!)
-            : Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              ),
+        // _chewieController != null &&
+        //         _chewieController!.videoPlayerController.value.isInitialized
+        //     ? Chewie(controller: _chewieController!)
+        //     : Center(
+        //         child: CircularProgressIndicator(
+        //           color: Colors.white,
+        //         ),
+        //       ),
+        BetterPlayer(controller: betterPlayerController),
         Align(
           alignment: Alignment.bottomRight,
           child: Row(
@@ -135,7 +150,7 @@ class _VideoScreenState extends State<VideoScreen> {
                 children: [
                   InkWell(
                     onTap: () async {
-                      _chewieController!.pause();
+                      // _chewieController!.pause();
                       SharedPreferences sharedPreferences =
                           await SharedPreferences.getInstance();
                       var uid = sharedPreferences.getString("uid");
@@ -222,7 +237,7 @@ class _VideoScreenState extends State<VideoScreen> {
                       ),
                       InkWell(
                         onTap: () async {
-                          _chewieController!.pause();
+                          //_chewieController!.pause();
                           SharedPreferences sharedPreferences =
                               await SharedPreferences.getInstance();
                           var uid = sharedPreferences.getString("uid");

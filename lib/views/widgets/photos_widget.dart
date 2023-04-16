@@ -1,17 +1,23 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
+
 import 'package:dio/dio.dart' as d;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:readmore/readmore.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotix/core/security.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import '../../core/constants.dart';
 import '../screen_comments/screen_comments.dart';
 import '../screen_view_user/screen_view_user.dart';
 import '../screen_account/screen_account.dart';
 import '../screen_main/screen_main.dart';
+
 class PhotosWidget extends StatelessWidget {
   final String id;
   final String pid;
@@ -35,6 +41,8 @@ class PhotosWidget extends StatelessWidget {
       required this.id});
   ValueNotifier<int> likeCount = ValueNotifier(0);
   ValueNotifier<String> liked = ValueNotifier("");
+  ValueNotifier<bool> isDownloading = ValueNotifier(false);
+  ValueNotifier<int> downloadingPercentage = ValueNotifier(0);
   @override
   Widget build(BuildContext context) {
     var mheight = MediaQuery.of(context).size.height;
@@ -213,11 +221,48 @@ class PhotosWidget extends StatelessWidget {
                     const SizedBox(
                       width: 25,
                     ),
-                    const Icon(
-                      Bootstrap.send,
-                      size: 25,
-                      color: Colors.white,
-                    )
+                    // InkWell(
+                    //   onTap: () async {
+                    //     print("Clicked");
+                    //     if (isDownloading.value) {
+                    //     } else {
+                    //      print("Started");
+                    //       final img = await share(postUrl);
+
+                    //       Share.shareXFiles([XFile('${img?.path}')]);
+                    //     }
+                    //   },
+                    //   child: Column(
+                    //     children: [
+                    //       ValueListenableBuilder(
+                    //             valueListenable: isDownloading,
+                    //             builder: (context, val, child) {
+                    //               return val
+                    //                   ? const CircularProgressIndicator(
+                    //                       strokeWidth: 1,
+                    //                     )
+                    //                   : const Icon(
+                    //         Bootstrap.send,
+                    //         size: 25,
+                    //         color: Colors.white,
+                    //       );
+                    //             }),
+                    //              ValueListenableBuilder(
+                    //       valueListenable: downloadingPercentage,
+                    //       builder: (context, val, child) {
+                    //         return val != 0
+                    //             ? Text(
+                    //                 "$val%",
+                    //                 style: const TextStyle(color:Colors.white),
+                    //               )
+                    //             : const Text(
+                    //                 "Share",
+                    //                 style: TextStyle(color:Colors.white),
+                    //               );
+                    //       }),
+                    //     ],
+                    //   ) ,
+                    // )
                   ],
                 );
               }),
@@ -270,7 +315,7 @@ class PhotosWidget extends StatelessWidget {
         options: d.Options(contentType: d.Headers.formUrlEncodedContentType));
   }
 
-  showOptions(BuildContext context) async{
+  showOptions(BuildContext context) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var myUid = sharedPreferences.getString("uid");
     showModalBottomSheet(
@@ -284,36 +329,40 @@ class PhotosWidget extends StatelessWidget {
                 SizedBox(
                   height: 10,
                 ),
-              myUid!=id?SizedBox(height: 1,):  InkWell(
-                  onTap: ()=>deletePost(myUid,context),
-                  child: Row(
-                    children: const [
-                      SizedBox(
-                        width: 15,
-                      ),
-                      Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                      ),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        "Delete",
-                        style: TextStyle(
-                          fontFamily: "Itim",
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
+                myUid != id
+                    ? SizedBox(
+                        height: 1,
                       )
-                    ],
-                  ),
-                ),
+                    : InkWell(
+                        onTap: () => deletePost(myUid, context),
+                        child: Row(
+                          children: const [
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              "Delete",
+                              style: TextStyle(
+                                fontFamily: "Itim",
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                 SizedBox(
                   height: 10,
                 ),
                 InkWell(
-                  onTap: ()=>reportPost(myUid,context),
+                  onTap: () => reportPost(myUid, context),
                   child: Row(
                     children: const [
                       SizedBox(
@@ -345,7 +394,7 @@ class PhotosWidget extends StatelessWidget {
           );
         });
   }
-  
+
   deletePost(myuid, BuildContext context) async {
     Get.snackbar(
       "Please Wait",
@@ -468,4 +517,37 @@ class PhotosWidget extends StatelessWidget {
     }
   }
 
+  Future<File?> share(String url) async {
+    print("Function called");
+    isDownloading.value = true;
+    final name = url.split('/').last;
+    final appStorage = await getApplicationDocumentsDirectory();
+    if (await File("${appStorage.path}/$name").exists()) {
+      isDownloading.value = false;
+      downloadingPercentage.value = 0;
+      final file = File("${appStorage.path}/$name");
+      return file;
+    } else {
+      final file = File("${appStorage.path}/$name");
+      final response = await d.Dio().get(url,
+          options: d.Options(
+            responseType: d.ResponseType.bytes,
+            followRedirects: false,
+            receiveTimeout: Duration(seconds: 0),
+          ), onReceiveProgress: (actualBytes, totalBytes) {
+        var percentage = actualBytes / totalBytes * 100;
+        if (percentage < 100) {
+          print("Progress $percentage");
+          downloadingPercentage.value = percentage.toInt();
+        } else {
+          isDownloading.value = false;
+          downloadingPercentage.value = 0;
+        }
+      });
+      final raf = file.openSync(mode: FileMode.write);
+      raf.writeFromSync(response.data);
+      await raf.close();
+      return file;
+    }
+  }
 }

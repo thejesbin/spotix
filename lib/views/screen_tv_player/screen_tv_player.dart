@@ -1,11 +1,9 @@
-import 'package:chewie/chewie.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:video_player/video_player.dart';
-
 import '../../core/constants.dart';
 import '../../viewmodels/channels_viewmodel.dart';
-
+import 'package:better_player/better_player.dart';
 class ScreenTvPlayer extends StatefulWidget {
   final String url;
   final String name;
@@ -23,32 +21,42 @@ class ScreenTvPlayer extends StatefulWidget {
 }
 
 class _ScreenTvPlayerState extends State<ScreenTvPlayer> {
-  late VideoPlayerController _videoPlayerController;
-  ChewieController? _chewieController;
+  // late VideoPlayerController _videoPlayerController;
+  // ChewieController? _chewieController;
+  late BetterPlayerController betterPlayerController;
   @override
   void initState() {
     super.initState();
-    initializePlayer();
+   // initializePlayer();
+     BetterPlayerDataSource betterPlayerDataSource = BetterPlayerDataSource(
+        BetterPlayerDataSourceType.network,
+        widget.url);
+    betterPlayerController = BetterPlayerController(
+        BetterPlayerConfiguration(
+            autoPlay: true,
+            controlsConfiguration: BetterPlayerControlsConfiguration(
+                enableSkips: false, enableRetry: false)),
+        betterPlayerDataSource: betterPlayerDataSource);
   }
 
-  Future initializePlayer() async {
-    _videoPlayerController = VideoPlayerController.network(widget.url);
-    await Future.wait([_videoPlayerController.initialize()]);
-    _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        autoPlay: true,
-        showControls: true,
-        materialProgressColors: ChewieProgressColors(
-            playedColor: primaryColor, backgroundColor: Colors.white));
-    setState(() {});
-  }
+  // Future initializePlayer() async {
+  //   _videoPlayerController = VideoPlayerController.network(widget.url);
+  //   await Future.wait([_videoPlayerController.initialize()]);
+  //   _chewieController = ChewieController(
+  //       videoPlayerController: _videoPlayerController,
+  //       autoPlay: true,
+  //       showControls: true,
+  //       materialProgressColors: ChewieProgressColors(
+  //           playedColor: primaryColor, backgroundColor: Colors.white));
+  //   setState(() {});
+  // }
 
-  @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    _chewieController!.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _videoPlayerController.dispose();
+  //   _chewieController!.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -59,29 +67,30 @@ class _ScreenTvPlayerState extends State<ScreenTvPlayer> {
         child: Center(
             child: Column(
           children: [
-            SizedBox(
-              height: 250,
-              child: _chewieController != null &&
-                      _chewieController!
-                          .videoPlayerController.value.isInitialized
-                  ? Chewie(
-                      controller: _chewieController!,
-                    )
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        CircularProgressIndicator(
-                          color: Colors.white,
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          'Loading...',
-                          style: TextStyle(
-                              color: Colors.white, fontFamily: "Itim"),
-                        )
-                      ],
-                    ),
-            ),
+              BetterPlayer(controller: betterPlayerController),
+            // SizedBox(
+            //   height: 250,
+            //   child: _chewieController != null &&
+            //           _chewieController!
+            //               .videoPlayerController.value.isInitialized
+            //       ? Chewie(
+            //           controller: _chewieController!,
+            //         )
+            //       : Column(
+            //           mainAxisAlignment: MainAxisAlignment.center,
+            //           children: const [
+            //             CircularProgressIndicator(
+            //               color: Colors.white,
+            //             ),
+            //             SizedBox(height: 10),
+            //             Text(
+            //               'Loading...',
+            //               style: TextStyle(
+            //                   color: Colors.white, fontFamily: "Itim"),
+            //             )
+            //           ],
+            //         ),
+            // ),
             Row(
               children: [
                 SizedBox(
@@ -108,14 +117,14 @@ class _ScreenTvPlayerState extends State<ScreenTvPlayer> {
                 width: 10,
               ),
               Text(
-                widget.name,
+                widget.name,overflow:TextOverflow.ellipsis,
                 style: TextStyle(
-                    color: Colors.white, fontSize: 20, fontFamily: "Itim"),
+                    color: Colors.white, fontSize: 20, fontFamily: "Itim",overflow:TextOverflow.ellipsis),
               ),
               Spacer(),
               Text(
-                "language: ${widget.language}",
-                style: TextStyle(color: Colors.grey, fontFamily: "Itim"),
+                "language: ${widget.language}",overflow:TextOverflow.ellipsis,
+                style: TextStyle(color: Colors.grey, fontFamily: "Itim",overflow:TextOverflow.ellipsis),
               ),
               SizedBox(
                 width: 10,

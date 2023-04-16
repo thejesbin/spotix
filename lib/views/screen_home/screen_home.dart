@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -10,7 +10,6 @@ import 'package:spotix/core/constants.dart';
 import 'package:spotix/viewmodels/history_viewmodel.dart';
 import 'package:spotix/views/screen_account/screen_account.dart';
 import 'package:spotix/views/screen_chat_list/screen_chat_list.dart';
-import 'package:video_player/video_player.dart';
 import '../../viewmodels/account_viewmodel.dart';
 import '../../viewmodels/photos_viewmodel.dart';
 import '../../viewmodels/videos_viewmodel.dart';
@@ -44,20 +43,20 @@ class ScreenHome extends StatelessWidget {
         maxDuration: const Duration(seconds: 60),
       );
       if (video == null) return;
-      VideoPlayerController testLength =
-          VideoPlayerController.file(File(video.path));
-      await testLength.initialize();
-      if (testLength.value.duration.inSeconds > 120) {
-        Get.snackbar(
-          "Ho no",
-          "Maximum video length is 120s",
-          colorText: Colors.white,
-          backgroundColor: Colors.red,
-        );
-      } else {
+      // BetterPlayerController testLength =
+      //     BetterPlayerController.file(File(video.path));
+      // await testLength.initialize();
+      // if (testLength.value.duration.inSeconds > 120) {
+      //   Get.snackbar(
+      //     "Ho no",
+      //     "Maximum video length is 120s",
+      //     colorText: Colors.white,
+      //     backgroundColor: Colors.red,
+      //   );
+      // } else {
         final videoTemporary = File(video.path);
         Get.to(() => ScreenUploadShorts(video: videoTemporary));
-      }
+     // }
     } on PlatformException catch (e) {
       print("failed to pick video :$e");
     }
